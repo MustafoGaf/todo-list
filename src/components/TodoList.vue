@@ -29,7 +29,6 @@
       >
         <p class="text-xl text-indigo-700 font-medium">{{ todo.title }}</p>
         <div>
-          <p>{{ todo.id }}</p>
           <button
             @click="deleteTodo(todo.id)"
             class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-[10px] mr-1"
@@ -37,12 +36,37 @@
             Удалить
           </button>
           <button
+            @click="openModal(todo.id)"
             class="bg-green-500 hover:bg-green-700 text-black font-bold py-2 px-4 rounded-[10px]"
           >
-            Изменит
+            Изменить
           </button>
         </div>
       </div>
+    </div>
+  </div>
+  <div
+    v-if="modalOpen"
+    class="absolute top-0 left-0 right-0 bottom-0 bg-[#00000036] flex justify-center items-center"
+  >
+    <div class="w-2/4 bg-white py-6 px-6 flex flex-col gap-3 relative">
+      <span
+        class="text-3xl font-semibold absolute right-6 top-0 cursor-pointer"
+        @click="modalOpen = false"
+        >X</span
+      >
+      <h1 class="text-2xl text-center text-black">Изменение задач</h1>
+      <input
+        type="text"
+        class="border w-full mt-4 h-10 text-lg font-medium px-3"
+        v-model="editeTodoValue"
+      />
+      <button
+        @click="editTodo()"
+        class="bg-green-500 hover:bg-green-700 text-black font-bold py-2 px-4 rounded-[10px]"
+      >
+        Сохранить
+      </button>
     </div>
   </div>
 </template>
@@ -52,7 +76,10 @@ import { reactive, ref } from "vue";
 import TodoList from "./TodoList.vue";
 export default {
   setup() {
+    const modalOpen = ref(false);
     let todos = reactive([]);
+    let editeTodoValue = ref("hello");
+    const idx = ref(0);
     const addTodo = (e) => {
       e.preventDefault();
       let index = ref(1);
@@ -66,12 +93,37 @@ export default {
       e.target["title"].value = "";
     };
     const deleteTodo = (id) => {
-      const index = todos.findIndex((task) => task.id === id);
+      const index = todos.findIndex((todo) => todo.id === id);
       if (index !== -1) {
         todos.splice(index, 1);
       }
     };
-    return { todos, addTodo, deleteTodo };
+    const openModal = (id) => {
+      idx.value = id;
+      const todo = todos.filter((todo) => todo.id == id);
+      modalOpen.value = true;
+
+      editeTodoValue.value = todo[0].title;
+    };
+    const editTodo = () => {
+      const todo = todos.find((todo) => todo.id == idx.value);
+
+      if (todo) {
+        todo.title = editeTodoValue.value;
+      }
+      modalOpen.value = false;
+      idx.value = 0;
+    };
+
+    return {
+      todos,
+      addTodo,
+      deleteTodo,
+      modalOpen,
+      openModal,
+      editeTodoValue,
+      editTodo,
+    };
   },
 };
 </script>
