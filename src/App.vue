@@ -6,6 +6,5 @@ import TodoList from "./components/TodoList.vue";
 
 <template>
   <Header></Header>
-  <!-- <HelloWorld msg="hjkdfbjhfghjdg" /> -->
-  <AddTodo />
+  <TodoList />
 </template>
