@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col items-center">
-    <div class="w-4/5">
+    <div class="w-4/5 lg:w-1/2">
       <form
         action=""
         class="flex flex-col items-center gap-4"
@@ -21,9 +21,18 @@
         </button>
       </form>
     </div>
+    <div class="m-3">
+      <select name="sort" class="p-2" v-model="sortValue">
+        <option value="default">Сортировка:</option>
+        <option value="sortedById">Сортировка задач по ID(1 - 9)</option>
+        <option value="sortedByDate">
+          Сортировка задачи по дата(старый - новый)
+        </option>
+      </select>
+    </div>
     <div class="w-3/4">
       <div
-        v-for="(todo, index) in todos"
+        v-for="(todo, index) in sortTodoList"
         :key="index"
         class="w-full border mt-3 py-3 px-4 flex justify-between"
       >
@@ -72,15 +81,18 @@
 </template>
 
 <script>
-import { reactive, ref } from "vue";
-import TodoList from "./TodoList.vue";
+import { reactive, ref, computed, watch } from "vue";
+
 export default {
   setup() {
     const modalOpen = ref(false);
-    let todos = reactive([]);
-    let editeTodoValue = ref("hello");
+    const todos = reactive([]);
+    const index = ref(1);
+    let editeTodoValue = ref("");
     const idx = ref(0);
+    const sortValue = ref("default");
     const addTodo = (e) => {
+      console.log(todos);
       e.preventDefault();
       let index = ref(1);
       const newData = {
@@ -89,8 +101,9 @@ export default {
         date: new Date().getTime(),
       };
       todos.push(newData);
-      index = index + 1;
+
       e.target["title"].value = "";
+      index.value = 2;
     };
     const deleteTodo = (id) => {
       const index = todos.findIndex((todo) => todo.id === id);
@@ -115,14 +128,30 @@ export default {
       idx.value = 0;
     };
 
+    const sortTodoList = computed(() => {
+      if (sortValue.value == "sortedById") {
+        return todos.sort((a, b) => a.id - b.id);
+      } else if (sortValue.value == "default") {
+        return todos;
+      } else if (sortValue.value == "sortedByDate") {
+        return todos.sort((a, b) => {
+          if (a.date > b.date) {
+            return -1;
+          }
+        });
+      }
+    });
+
     return {
-      todos,
+   
       addTodo,
       deleteTodo,
       modalOpen,
       openModal,
       editeTodoValue,
       editTodo,
+      sortValue,
+      sortTodoList,
     };
   },
 };
