@@ -1,9 +1,9 @@
 <template>
   <div class="flex flex-col items-center">
-    <div class="w-4/5 lg:w-1/2">
+    <div class="sm:w-4/5 w-[97%] lg:w-1/2">
       <form
         action=""
-        class="flex flex-col items-center gap-4"
+        class="flex flex-col items-center gap-2 sm:gap-4"
         @submit="addTodo"
       >
         <input
@@ -23,30 +23,30 @@
     </div>
     <div class="m-3">
       <select name="sort" class="p-2" v-model="sortValue">
-        <option value="default">Сортировка:</option>
-        <option value="sortedById">Сортировка задач по ID(1 - 9)</option>
-        <option value="sortedByDate">
-          Сортировка задачи по дата(старый - новый)
-        </option>
+        <option value="default">Сортировка задач:</option>
+        <option value="sortedById">По ID(1-9)</option>
+        <option value="sortedByDate">По дата(старый-новый)</option>
       </select>
     </div>
-    <div class="w-3/4">
+    <div class="sm:w-3/4 w-[97%]">
       <div
         v-for="(todo, index) in sortTodoList"
         :key="index"
-        class="w-full border mt-3 py-3 px-4 flex justify-between"
+        class="w-full border mt-3 py-3 px-4 flex flex-col sm:flex-row gap-4 justify-between"
       >
-        <p class="text-xl text-indigo-700 font-medium">{{ todo.title }}</p>
+        <div>
+          <p class="text-xl text-indigo-700 font-medium">{{ todo.title }}</p>
+        </div>
         <div>
           <button
             @click="deleteTodo(todo.id)"
-            class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-[10px] mr-1"
+            class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-2 sm:px-4 text-sm rounded-[10px] mr-1"
           >
             Удалить
           </button>
           <button
             @click="openModal(todo.id)"
-            class="bg-green-500 hover:bg-green-700 text-black font-bold py-2 px-4 rounded-[10px]"
+            class="bg-green-500 hover:bg-green-700 text-black font-bold py-2 px-2 sm:px-4 text-sm rounded-[10px]"
           >
             Изменить
           </button>
@@ -143,7 +143,6 @@ export default {
     });
 
     return {
-   
       addTodo,
       deleteTodo,
       modalOpen,
