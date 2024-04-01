@@ -4,6 +4,6 @@ import TodoList from "./components/TodoList.vue";
 </script>
 
 <template>
-  <Header></Header>
+  <Header />
   <TodoList />
 </template>

@@ -1,58 +1,20 @@
 <template>
   <div class="flex flex-col items-center">
-    <div class="sm:w-4/5 w-[97%] lg:w-1/2">
-      <form
-        action=""
-        class="flex flex-col items-center gap-2 sm:gap-4"
-        @submit="addTodo"
-      >
-        <input
-          class="w-full px-4 py-2 rounded-md border border-gray-800 shadow-sm text-base"
-          type="text"
-          placeholder="Введите дело"
-          name="title"
-          required
-        />
-        <button
-          type="submit"
-          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-[10px]"
-        >
-          Создать задач
-        </button>
-      </form>
-    </div>
+    <todo-form @create="addTodo" />
     <div class="m-3">
-      <select name="sort" class="p-2" v-model="sortValue">
+      <select name="sort" class="p-2" v-model="sortValue" @change="sortTodos">
         <option value="default">Сортировка задач:</option>
         <option value="sortedById">По ID(1-9)</option>
         <option value="sortedByDate">По дата(старый-новый)</option>
       </select>
     </div>
-    <div class="sm:w-3/4 w-[97%]">
-      <div
-        v-for="(todo, index) in sortTodoList"
-        :key="index"
-        class="w-full border mt-3 py-3 px-4 flex flex-col sm:flex-row gap-4 justify-between"
-      >
-        <div>
-          <p class="text-xl text-indigo-700 font-medium">{{ todo.title }}</p>
-        </div>
-        <div>
-          <button
-            @click="deleteTodo(todo.id)"
-            class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-2 sm:px-4 text-sm rounded-[10px] mr-1"
-          >
-            Удалить
-          </button>
-          <button
-            @click="openModal(todo.id)"
-            class="bg-green-500 hover:bg-green-700 text-black font-bold py-2 px-2 sm:px-4 text-sm rounded-[10px]"
-          >
-            Изменить
-          </button>
-        </div>
-      </div>
-    </div>
+
+    <todo-items
+      :todos="todos"
+      @delete="deleteTodo"
+      @update="openModal"
+      :sort="sortValue"
+    />
   </div>
   <div
     v-if="modalOpen"
@@ -80,78 +42,50 @@
   </div>
 </template>
 
-<script>
-import { reactive, ref, computed, watch } from "vue";
+<script setup>
+import { ref } from "vue";
+import TodoForm from "./TodoForm.vue";
+import TodoItems from "./TodoItems.vue";
 
-export default {
-  setup() {
-    const modalOpen = ref(false);
-    const todos = reactive([]);
-    const index = ref(1);
-    let editeTodoValue = ref("");
-    const idx = ref(0);
-    const sortValue = ref("default");
-    const addTodo = (e) => {
-      console.log(todos);
-      e.preventDefault();
-      let index = ref(1);
-      const newData = {
-        id: new Date().getTime(),
-        title: e.target["title"].value,
-        date: new Date().getTime(),
-      };
-      todos.push(newData);
+const modalOpen = ref(false);
+const todos = ref([]);
 
-      e.target["title"].value = "";
-      index.value = 2;
-    };
-    const deleteTodo = (id) => {
-      const index = todos.findIndex((todo) => todo.id === id);
-      if (index !== -1) {
-        todos.splice(index, 1);
-      }
-    };
-    const openModal = (id) => {
-      idx.value = id;
-      const todo = todos.filter((todo) => todo.id == id);
-      modalOpen.value = true;
+const editeTodoValue = ref("");
+const idx = ref(0);
+const sortValue = ref("default");
+const addTodo = (title) => {
+  const newTodo = {
+    id: new Date().getTime(),
+    title: title,
+    date: new Date().getTime(),
+  };
+  todos.value.push(newTodo);
+};
+const deleteTodo = (id) => {
+  todos.value = todos.value.filter((todo) => todo.id != id);
+};
+const openModal = (id) => {
+  idx.value = id;
+  editeTodoValue.value = todos.value.find((todo) => todo.id == id).title;
+  modalOpen.value = true;
+};
+const editTodo = () => {
+  todos.value.find((todo) => todo.id == idx.value).title = editeTodoValue.value;
 
-      editeTodoValue.value = todo[0].title;
-    };
-    const editTodo = () => {
-      const todo = todos.find((todo) => todo.id == idx.value);
-
-      if (todo) {
-        todo.title = editeTodoValue.value;
-      }
-      modalOpen.value = false;
-      idx.value = 0;
-    };
-
-    const sortTodoList = computed(() => {
-      if (sortValue.value == "sortedById") {
-        return todos.sort((a, b) => a.id - b.id);
-      } else if (sortValue.value == "default") {
-        return todos;
-      } else if (sortValue.value == "sortedByDate") {
-        return todos.sort((a, b) => {
-          if (a.date > b.date) {
-            return -1;
-          }
-        });
+  modalOpen.value = false;
+  idx.value = 0;
+};
+const sortTodos = () => {
+  if (sortValue.value == "sortedById") {
+    todos.value = todos.value.sort((a, b) => a.id - b.id);
+  } else if (sortValue.value == "default") {
+    todos.value = todos;
+  } else if (sortValue.value == "sortedByDate") {
+    todos.value = todos.value.sort((a, b) => {
+      if (a.date > b.date) {
+        return -1;
       }
     });
-
-    return {
-      addTodo,
-      deleteTodo,
-      modalOpen,
-      openModal,
-      editeTodoValue,
-      editTodo,
-      sortValue,
-      sortTodoList,
-    };
-  },
+  }
 };
 </script>
