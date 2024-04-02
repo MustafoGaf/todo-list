@@ -16,13 +16,10 @@
       :sort="sortValue"
     />
   </div>
-  <div
-    v-if="modalOpen"
-    class="absolute top-0 left-0 right-0 bottom-0 bg-[#00000036] flex justify-center items-center"
-  >
-    <div class="w-2/4 bg-white py-6 px-6 flex flex-col gap-3 relative">
+  <my-modal v-model:isOpen="modalOpen">
+    <div class="flex flex-col gap-3 relative">
       <span
-        class="text-3xl font-semibold absolute right-6 top-0 cursor-pointer"
+        class="text-3xl font-semibold absolute right-0 top-[-20px] cursor-pointer"
         @click="modalOpen = false"
         >X</span
       >
@@ -39,13 +36,14 @@
         Сохранить
       </button>
     </div>
-  </div>
+  </my-modal>
 </template>
 
 <script setup>
 import { ref } from "vue";
 import TodoForm from "./TodoForm.vue";
 import TodoItems from "./TodoItems.vue";
+import MyModal from "./UI/MyModal.vue";
 
 const modalOpen = ref(false);
 const todos = ref([]);
