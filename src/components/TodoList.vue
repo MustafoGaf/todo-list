@@ -77,7 +77,7 @@ const sortTodos = () => {
   if (sortValue.value == "sortedById") {
     todos.value = todos.value.sort((a, b) => a.id - b.id);
   } else if (sortValue.value == "default") {
-    todos.value = todos;
+    todos.value = todos.value;
   } else if (sortValue.value == "sortedByDate") {
     todos.value = todos.value.sort((a, b) => {
       if (a.date > b.date) {
