@@ -8,6 +8,7 @@
         <option value="sortedByDate">По дата(старый-новый)</option>
       </select>
     </div>
+    <router-link to="/login"><h1>Login</h1> </router-link>
 
     <todo-items
       :todos="todos"
@@ -40,7 +41,9 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+const router = useRouter();
 import TodoForm from "./TodoForm.vue";
 import TodoItems from "./TodoItems.vue";
 import MyModal from "./UI/MyModal.vue";
@@ -51,6 +54,23 @@ const todos = ref([]);
 const editeTodoValue = ref("");
 const idx = ref(0);
 const sortValue = ref("default");
+const getTodos = async (token) => {
+  const response = await fetch("http://localhost:8000/api/todos/", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + String(token),
+    },
+  });
+  if (response.status == 200) {
+    const { data } = await response.json();
+    todos.value = data;
+  } else {
+    localStorage.clear();
+    router.push("/login");
+  }
+};
+
 const addTodo = (title) => {
   const newTodo = {
     id: new Date().getTime(),
@@ -86,4 +106,13 @@ const sortTodos = () => {
     });
   }
 };
+onMounted(() => {
+  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  console.log("current User", currentUser);
+  if (currentUser != null) {
+    try {
+      getTodos(currentUser.access);
+    } catch (error) {}
+  }
+});
 </script>

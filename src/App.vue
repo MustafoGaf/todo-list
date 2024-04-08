@@ -5,5 +5,5 @@ import TodoList from "./components/TodoList.vue";
 
 <template>
   <Header />
-  <TodoList />
+  <router-view></router-view>
 </template>
