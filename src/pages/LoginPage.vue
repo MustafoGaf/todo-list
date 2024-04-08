@@ -25,8 +25,8 @@
         </div>
         <p class="text-red-800 text-lg my-2">{{ error }}</p>
         <button
-        :disabled='loading'
-        :class="{'blur-sm':loading}"
+          :disabled="loading"
+          :class="{ 'blur-sm': loading }"
           type="submit"
           class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
         >
@@ -42,10 +42,10 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 const username = ref("");
 const password = ref("");
-const loading = ref(false)
+const loading = ref(false);
 const error = ref("");
 const loginUser = async () => {
-  loading.value=true
+  loading.value = true;
   try {
     const response = await fetch("http://localhost:8000/api/token/", {
       method: "POST",
@@ -57,18 +57,18 @@ const loginUser = async () => {
         password: password.value,
       }),
     });
-    loading.value=false
+    loading.value = false;
     const data = await response.json();
     if (response.status == 200) {
       localStorage.clear();
       localStorage.setItem("currentUser", JSON.stringify(data));
       error.value = "";
-      router.push({name :"todo"});
+      router.push({ name: "todo" });
     } else {
       error.value = data.detail;
     }
   } catch (error) {
-    loading.value = false
+    loading.value = false;
     console.log(">>", error);
   }
 };
