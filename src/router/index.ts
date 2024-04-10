@@ -1,8 +1,12 @@
 import { createWebHistory, createRouter } from "vue-router";
+import { jwtDecode } from "jwt-decode";
+
 //@ts-ignore
 import TodoPage from "../pages/TodoPage.vue";
 //@ts-ignore
 import Login from "../pages/LoginPage.vue";
+//@ts-ignore
+import Admin from "../pages/AdminPage.vue";
 
 const routes = [
   { path: "/", name: "todo", meta: { auth: true }, component: TodoPage },
@@ -10,7 +14,7 @@ const routes = [
   {
     path: "/admin",
     meta: { auth: true, admin: true },
-    component: Login,
+    component: Admin,
   },
 ];
 
@@ -21,11 +25,9 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const curentUser = localStorage.getItem("currentUser");
-  const requireAuth = to.matched.some((record) => record.meta.auth);
-  const requireAdmin = to.matched.some((record) => record.meta.admin);
   if (curentUser == null && to.path !== "/login") {
     next("/login");
-  } else if (curentUser && to.path == "/admin") {
+  } else if (curentUser && to.path == "/login") {
     next("/");
   } else {
     next();

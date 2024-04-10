@@ -39,11 +39,15 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import { useStore } from "vuex";
+import { jwtDecode } from "jwt-decode";
+const store = useStore();
 const router = useRouter();
 const username = ref("");
 const password = ref("");
 const loading = ref(false);
 const error = ref("");
+
 const loginUser = async () => {
   loading.value = true;
   try {
@@ -57,19 +61,22 @@ const loginUser = async () => {
         password: password.value,
       }),
     });
-    loading.value = false;
+
     const data = await response.json();
     if (response.status == 200) {
       localStorage.clear();
       localStorage.setItem("currentUser", JSON.stringify(data));
       error.value = "";
+      const { username, isAdmin } = jwtDecode(data.access);
+      store.commit("saveUserData", { username, isAdmin });
       router.push({ name: "todo" });
     } else {
       error.value = data.detail;
     }
   } catch (error) {
+    error.value = "Что то произошло не так повторите попитку";
+  } finally {
     loading.value = false;
-    console.log(">>", error);
   }
 };
 </script>

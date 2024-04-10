@@ -8,7 +8,6 @@
         <option value="sortedByDate">По дата(старый-новый)</option>
       </select>
     </div>
-    <router-link to="/login"><h1>Login</h1> </router-link>
 
     <todo-items
       :todos="todos"
@@ -43,6 +42,8 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import { useStore } from "vuex";
+const store = useStore();
 const router = useRouter();
 import TodoForm from "./TodoForm.vue";
 import TodoItems from "./TodoItems.vue";
@@ -67,6 +68,7 @@ const getTodos = async (token) => {
     todos.value = data;
   } else {
     localStorage.clear();
+    store.commit("saveUserData", { username: "", isAdmin: false });
     router.push("/login");
   }
 };
