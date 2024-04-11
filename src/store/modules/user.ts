@@ -1,9 +1,8 @@
-import { jwtDecode } from "jwt-decode";
 import router from "../../router/index";
 
 export default {
   actions: {
-    async loginUser({ commit }, userdata) {
+    async loginUser({ commit, dispatch }, userdata) {
       commit("updateLoading", true);
       try {
         const response = await fetch("http://localhost:8000/api/token/", {
@@ -19,8 +18,7 @@ export default {
           localStorage.clear();
           localStorage.setItem("currentUser", JSON.stringify(data));
           commit("updateError", "");
-          const { username, isAdmin } = jwtDecode<any>(data.access);
-          commit("saveUserData", { username, isAdmin });
+          dispatch("userData", data.access);
           router.push({ name: "todo" });
         } else {
           commit("updateError", data.detail);
@@ -29,6 +27,27 @@ export default {
         commit("updateError", "Что то произошло не так повторите попитку");
       } finally {
         commit("updateLoading", false);
+      }
+    },
+    async userData({ commit }, token) {
+      try {
+        const response = await fetch("http://localhost:8000/auth/me/", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + String(token),
+          },
+        });
+        const { data } = await response.json();
+        if (response.status == 200) {
+          commit("saveUserData", {
+            username: data.username,
+            isAdmin: data.is_staff,
+          });
+        }
+      } catch (error) {
+        localStorage.clear();
+        router.push("/login");
       }
     },
   },

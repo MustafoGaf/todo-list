@@ -1,5 +1,9 @@
 import router from "../../router/index";
-
+// ин порчаи кодро аз гитхаби ту гирифтам рози боши ...
+const filters = {
+  sortedById: (todos) => todos.sort((a, b) => a.id - b.id),
+  sortedByDate: (todos) => todos.sort((a, b) => (a.date > b.date ? -1 : 1)),
+};
 export default {
   actions: {
     async fetchTodos({ commit }, token) {
@@ -37,16 +41,9 @@ export default {
     },
     sortedTodo(state, sortedBy) {
       if (sortedBy == "sortedById") {
-        state.todos = state.todos.sort((a, b) => a.id - b.id);
-      } else if (sortedBy == "default") {
-        state.todos = state.todos;
+        state.todos = filters.sortedById(state.todos);
       } else if (sortedBy == "sortedByDate") {
-        state.todos = state.todos.sort((a, b) => {
-        
-          if (a.date > b.date) {
-            return -1;
-          }
-        });
+        state.todos = filters.sortedByDate(state.todos);
       }
     },
   },

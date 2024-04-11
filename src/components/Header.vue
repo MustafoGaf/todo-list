@@ -30,7 +30,6 @@
 import { ref, onMounted, computed } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
-import { jwtDecode } from "jwt-decode";
 const store = useStore();
 const router = useRouter();
 const hasLogin = ref(false);
@@ -44,9 +43,8 @@ const logout = () => {
 };
 onMounted(() => {
   const currentUser = localStorage.getItem("currentUser");
-  if (currentUser != null) {
-    const { username, isAdmin } = jwtDecode(JSON.parse(currentUser).access);
-    store.commit("saveUserData", { username, isAdmin });
+  if (!user.username && currentUser != null) {
+    store.dispatch("userData", JSON.parse(currentUser).access);
   }
 });
 </script>
