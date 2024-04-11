@@ -30,16 +30,15 @@
 import { ref, onMounted, computed } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
+import { jwtDecode } from "jwt-decode";
 const store = useStore();
 const router = useRouter();
-import { jwtDecode } from "jwt-decode";
 const hasLogin = ref(false);
 const user = computed(() => store.getters.getUserData);
 
-console.log(user);
-
 const logout = () => {
   localStorage.clear();
+  store.commit("updateTodos", []);
   store.commit("saveUserData", { username: "", isAdmin: false });
   router.push("/login");
 };

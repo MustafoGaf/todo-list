@@ -5,7 +5,7 @@
       <select name="sort" class="p-2" v-model="sortValue" @change="sortTodos">
         <option value="default">Сортировка задач:</option>
         <option value="sortedById">По ID(1-9)</option>
-        <option value="sortedByDate">По дата(старый-новый)</option>
+        <option value="sortedByDate">По дата(новый-cтарый)</option>
       </select>
     </div>
 
@@ -16,6 +16,7 @@
       :sort="sortValue"
     />
   </div>
+
   <my-modal v-model:isOpen="modalOpen">
     <div class="flex flex-col gap-3 relative">
       <span
@@ -40,49 +41,24 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
-const store = useStore();
-const router = useRouter();
 import TodoForm from "./TodoForm.vue";
 import TodoItems from "./TodoItems.vue";
 import MyModal from "./UI/MyModal.vue";
-
+const store = useStore();
+const router = useRouter();
+const todos = computed(() => store.getters.getTodos);
 const modalOpen = ref(false);
-const todos = ref([]);
-
 const editeTodoValue = ref("");
 const idx = ref(0);
 const sortValue = ref("default");
-const getTodos = async (token) => {
-  const response = await fetch("http://localhost:8000/api/todos/", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + String(token),
-    },
-  });
-  if (response.status == 200) {
-    const { data } = await response.json();
-    todos.value = data;
-  } else {
-    localStorage.clear();
-    store.commit("saveUserData", { username: "", isAdmin: false });
-    router.push("/login");
-  }
-};
-
 const addTodo = (title) => {
-  const newTodo = {
-    id: new Date().getTime(),
-    title: title,
-    date: new Date().getTime(),
-  };
-  todos.value.push(newTodo);
+  store.commit("addTodos", title);
 };
 const deleteTodo = (id) => {
-  todos.value = todos.value.filter((todo) => todo.id != id);
+  store.commit("deleteTodo", id);
 };
 const openModal = (id) => {
   idx.value = id;
@@ -96,25 +72,18 @@ const editTodo = () => {
   idx.value = 0;
 };
 const sortTodos = () => {
-  if (sortValue.value == "sortedById") {
-    todos.value = todos.value.sort((a, b) => a.id - b.id);
-  } else if (sortValue.value == "default") {
-    todos.value = todos.value;
-  } else if (sortValue.value == "sortedByDate") {
-    todos.value = todos.value.sort((a, b) => {
-      if (a.date > b.date) {
-        return -1;
-      }
-    });
-  }
+  store.commit("sortedTodo", sortValue.value);
 };
 onMounted(() => {
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-  console.log("current User", currentUser);
+
   if (currentUser != null) {
     try {
-      getTodos(currentUser.access);
-    } catch (error) {}
+      store.dispatch("fetchTodos", currentUser.access);
+    } catch (error) {
+      localStorage.clear();
+      router.push("/login");
+    }
   }
 });
 </script>

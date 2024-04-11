@@ -9,65 +9,64 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import TodoItems from "../components/TodoItems.vue";
 import UserList from "../components/UserList.vue";
 const store = useStore();
 const router = useRouter();
+const todos = computed(() => store.getters.getAllTodos);
+const users = computed(() => store.getters.getAllUser);
 
-const todos = ref([]);
-const users = ref([]);
+// const getTodos = async (token) => {
+//   const response = await fetch("http://localhost:8000/api/admin/todos/", {
+//     method: "GET",
+//     headers: {
+//       "Content-Type": "application/json",
+//       Authorization: "Bearer " + String(token),
+//     },
+//   });
+//   if (response.status == 200) {
+//     const { data } = await response.json();
+//     console.log(data);
+//     todos.value = data;
+//   } else if (response.status == 401) {
+//     localStorage.clear();
+//     router.push("/login");
+//   } else {
+//     router.push("/");
+//   }
+// };
+// // const getUsers = async (token) => {
+// //   const response = await fetch("http://localhost:8000/api/admin/users/", {
+// //     method: "GET",
+// //     headers: {
+// //       "Content-Type": "application/json",
+// //       Authorization: "Bearer " + String(token),
+// //     },
+// //   });
+// //   if (response.status == 200) {
+// //     const { data } = await response.json();
+// //     console.log(data);
+// //     users.value = data;
+// //   } else if (response.status == 401) {
+// //     localStorage.clear();
 
-const getTodos = async (token) => {
-  const response = await fetch("http://localhost:8000/api/admin/todos/", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + String(token),
-    },
-  });
-  if (response.status == 200) {
-    const { data } = await response.json();
-    console.log(data);
-    todos.value = data;
-  } else if (response.status == 401) {
-    localStorage.clear();
-    router.push("/login");
-  } else {
-    router.push("/");
-  }
-};
-const getUsers = async (token) => {
-  const response = await fetch("http://localhost:8000/api/admin/users/", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + String(token),
-    },
-  });
-  if (response.status == 200) {
-    const { data } = await response.json();
-    console.log(data);
-    users.value = data;
-  } else if (response.status == 401) {
-    localStorage.clear();
+// //     store.commit("saveUserData", { username: "", isAdmin: false });
 
-    store.commit("saveUserData", { username: "", isAdmin: false });
-
-    router.push("/login");
-  } else {
-    router.push("/");
-  }
-};
+// //     router.push("/login");
+// //   } else {
+// //     router.push("/");
+// //   }
+// // };
 onMounted(() => {
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
   console.log("current User", currentUser);
   if (currentUser != null) {
     try {
-      getTodos(currentUser.access);
-      getUsers(currentUser.access);
+      store.dispatch("getAllTodos", currentUser.access);
+      store.dispatch("getAllUsers", currentUser.access);
     } catch (error) {}
   } else {
     localStorage.clear();
