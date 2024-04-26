@@ -50,15 +50,29 @@ import MyModal from "./UI/MyModal.vue";
 const store = useStore();
 const router = useRouter();
 const todos = computed(() => store.getters.getTodos);
+const user = computed(() => store.getters.getUserData);
 const modalOpen = ref(false);
 const editeTodoValue = ref("");
+console.log(user.value);
 const idx = ref(0);
 const sortValue = ref("default");
 const addTodo = (title) => {
-  store.commit("addTodos", title);
+  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  if (currentUser != null) {
+    console.log(user.value);
+    store.dispatch("createTodos", {
+      title,
+      token: currentUser.access,
+      id: user.value.user_id,
+    });
+  }
 };
 const deleteTodo = (id) => {
-  store.commit("deleteTodo", id);
+  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  if (currentUser != null) {
+    console.log(user.value);
+    store.dispatch("deleteTodo", { token: currentUser.access, id });
+  }
 };
 const openModal = (id) => {
   idx.value = id;

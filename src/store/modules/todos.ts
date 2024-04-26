@@ -4,6 +4,7 @@ const filters = {
   sortedById: (todos) => todos.sort((a, b) => a.id - b.id),
   sortedByDate: (todos) => todos.sort((a, b) => (a.date > b.date ? -1 : 1)),
 };
+
 export default {
   actions: {
     async fetchTodos({ commit }, token) {
@@ -17,6 +18,50 @@ export default {
       if (response.status == 200) {
         const { data } = await response.json();
         commit("updateTodos", data);
+      } else {
+        localStorage.clear();
+        commit("saveUserData", { username: "", isAdmin: false });
+        router.push("/login");
+      }
+    },
+    async createTodos({ commit, dispatch }, { title, token, id }) {
+      console.log(id, "lgkjfdklg");
+
+      const response = await fetch("http://localhost:8000/api/todos/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + String(token),
+        },
+        body: JSON.stringify({
+          title: title,
+          complete: false,
+          fk_user: id,
+          date: new Date().toISOString(),
+        }),
+      });
+      if (response.status == 201) {
+        const { data } = await response.json();
+        console.log(">>>>", data);
+        dispatch("fetchTodos", token);
+      } else {
+        localStorage.clear();
+        commit("saveUserData", { username: "", isAdmin: false });
+        router.push("/login");
+      }
+    },
+    async deleteTodo({ commit, dispatch }, { token, id }) {
+      console.log(id, "lgkjfdklg");
+
+      const response = await fetch(`http://localhost:8000/api/todos/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + String(token),
+        },
+      });
+      if (response.status == 200) {
+        dispatch("fetchTodos", token);
       } else {
         localStorage.clear();
         commit("saveUserData", { username: "", isAdmin: false });

@@ -39,10 +39,14 @@ export default {
           },
         });
         const { data } = await response.json();
+        console.log(data);
+
         if (response.status == 200) {
           commit("saveUserData", {
             username: data.username,
             isAdmin: data.is_staff,
+            email: data.email,
+            id: data.id,
           });
         }
       } catch (error) {
@@ -52,9 +56,11 @@ export default {
     },
   },
   mutations: {
-    saveUserData(state, { username, isAdmin }) {
+    saveUserData(state, { username, isAdmin, email, id }) {
       state.user.username = username;
       state.user.isAdmin = isAdmin;
+      state.user.user_id = id;
+      state.user.user_email = email;
     },
     updateLoading(state, loading) {
       state.loading = loading;
@@ -67,6 +73,8 @@ export default {
     user: {
       username: "",
       isAdmin: false,
+      user_id: 0,
+      user_email: "",
     },
     loading: false,
     error: "",
